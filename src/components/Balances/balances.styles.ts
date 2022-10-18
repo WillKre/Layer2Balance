@@ -1,12 +1,12 @@
 import styled from "styled-components";
 
 export const Container = styled.div`
-  display: grid;
-  margin: 40px auto;
-  max-width: 600px;
-  align-items: center;
-  grid-column-gap: 1rem;
-  grid-template-columns: repeat(2, 1fr);
+  width: 320px;
+  display: flex;
+  padding: 16px;
+  flex-direction: column;
+  margin: 0 auto 40px auto;
+  background-color: #282c34;
 `;
 
 export const Asset = styled.div`

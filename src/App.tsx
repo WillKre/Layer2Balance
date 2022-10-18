@@ -1,11 +1,11 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, Fragment, useEffect, useState } from "react";
 import web3 from "web3";
 import { useQuery } from "@tanstack/react-query";
 
 import { Network } from "./types";
 import { Balances } from "./components/Balances";
 import { fetchBalance } from "./helpers/fetch-balance/fetch-balance";
-import { Container, Input, Title } from "./App.styles";
+import { Grid, Input, Title } from "./App.styles";
 
 function App() {
   // @todo add ability to connect wallet to get address
@@ -36,17 +36,19 @@ function App() {
   if (arbitrum.isError || ethereum.isError || optimism.isError || polygon.isError) return <h1>Error...</h1>;
 
   return (
-    <Container>
+    <Fragment>
       <Title>Layer2Balance</Title>
       {!isAddressValid && <p>Please enter a valid address</p>}
 
       <Input value={address} onChange={handleChange} />
 
-      <Balances network={Network.Arbitrum} balance={arbitrum.data.result} />
-      <Balances network={Network.Ethereum} balance={ethereum.data.result} />
-      <Balances network={Network.Optimism} balance={optimism.data.result} />
-      <Balances network={Network.Polygon} balance={polygon.data.result} />
-    </Container>
+      <Grid>
+        <Balances network={Network.Arbitrum} balance={arbitrum.data.result} />
+        <Balances network={Network.Ethereum} balance={ethereum.data.result} />
+        <Balances network={Network.Optimism} balance={optimism.data.result} />
+        <Balances network={Network.Polygon} balance={polygon.data.result} />
+      </Grid>
+    </Fragment>
   );
 }
 
