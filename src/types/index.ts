@@ -1,1 +1,6 @@
-export type Network = "arbitrum" | "ethereum" | "optimism" | "polygon";
+export enum Network {
+  Arbitrum = "arbitrum",
+  Ethereum = "ethereum",
+  Optimism = "optimism",
+  Polygon = "polygon",
+}

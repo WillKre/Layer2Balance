@@ -2,13 +2,13 @@ import { Network } from "../../types";
 
 export function getPrefix(network: Network) {
   switch (network) {
-    case "arbitrum":
+    case Network.Arbitrum:
       return "https://api.arbiscan.io/";
-    case "ethereum":
+    case Network.Ethereum:
       return "https://api.etherscan.io/";
-    case "optimism":
+    case Network.Optimism:
       return "https://api-optimistic.etherscan.io/";
-    case "polygon":
+    case Network.Polygon:
       return "https://api.polygonscan.com/";
     default:
       return "https://api.etherscan.io/";
