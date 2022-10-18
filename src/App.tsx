@@ -3,10 +3,12 @@ import web3 from "web3";
 import { useQuery } from "@tanstack/react-query";
 
 import { Network } from "./types";
-import { Container, Input, Title } from "./App.styles";
+import { Balances } from "./components/Balances";
 import { fetchBalance } from "./helpers/fetch-balance/fetch-balance";
+import { Container, Input, Title } from "./App.styles";
 
 function App() {
+  // @todo add ability to connect wallet to get address
   const [address, setAddress] = useState("0x0000000000000000000000000000000000000000");
   const isAddressValid = web3.utils.isAddress(address);
 
@@ -28,6 +30,7 @@ function App() {
     }
   }, [address]);
 
+  // @todo handle loading & error within <Balances />
   if (arbitrum.isLoading || ethereum.isLoading || optimism.isLoading || polygon.isLoading) return <h1>Loading...</h1>;
 
   if (arbitrum.isError || ethereum.isError || optimism.isError || polygon.isError) return <h1>Error...</h1>;
@@ -38,10 +41,11 @@ function App() {
       {!isAddressValid && <p>Please enter a valid address</p>}
 
       <Input value={address} onChange={handleChange} />
-      <pre>{JSON.stringify(arbitrum.data)}</pre>
-      <pre>{JSON.stringify(ethereum.data)}</pre>
-      <pre>{JSON.stringify(optimism.data)}</pre>
-      <pre>{JSON.stringify(polygon.data)}</pre>
+
+      <Balances network={Network.Arbitrum} balance={arbitrum.data.result} />
+      <Balances network={Network.Ethereum} balance={ethereum.data.result} />
+      <Balances network={Network.Optimism} balance={optimism.data.result} />
+      <Balances network={Network.Polygon} balance={polygon.data.result} />
     </Container>
   );
 }
