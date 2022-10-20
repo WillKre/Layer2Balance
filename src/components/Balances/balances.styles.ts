@@ -6,7 +6,8 @@ export const Container = styled.div`
   padding: 16px;
   flex-direction: column;
   margin: 0 auto 40px auto;
-  background-color: #282c34;
+  background-color: rgb(14, 17, 26);
+  border: 1px solid rgba(153, 161, 189, 0.14);
 `;
 
 export const Asset = styled.div`

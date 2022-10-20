@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+import { MetaMaskInpageProvider } from "@metamask/providers";
 
 interface ImportMetaEnv {
   readonly VITE_ARBITRUM_API_KEY: string;
@@ -9,4 +10,10 @@ interface ImportMetaEnv {
 
 interface ImportMeta {
   readonly env: ImportMetaEnv;
+}
+
+declare global {
+  interface Window {
+    ethereum?: MetaMaskInpageProvider;
+  }
 }

@@ -1,16 +1,17 @@
 import { ChangeEvent, Fragment, useEffect, useState } from "react";
-import web3 from "web3";
 import { useQuery } from "@tanstack/react-query";
 
 import { Network } from "./types";
 import { Balances } from "./components/Balances";
 import { fetchBalance } from "./helpers/fetch-balance/fetch-balance";
-import { Grid, Input, Title } from "./App.styles";
+import { Button, Grid, InputContainer, Input, InputMessage, Title } from "./App.styles";
+import Web3 from "web3";
 
 function App() {
   // @todo add ability to connect wallet to get address
   const [address, setAddress] = useState("0x0000000000000000000000000000000000000000");
-  const isAddressValid = web3.utils.isAddress(address);
+  const [metamaskConnected, setMetamaskConnected] = useState(false);
+  const isAddressValid = Web3.utils.isAddress(address);
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
     setAddress(e.target.value);
@@ -30,6 +31,37 @@ function App() {
     }
   }, [address]);
 
+  window.ethereum.on("accountsChanged", handleAccountsChanged);
+
+  function handleAccountsChanged(accounts: string[]) {
+    if (!accounts.length) {
+      // MetaMask is locked or the user has not connected any accounts
+      console.log("Please connect to MetaMask.");
+    } else if (accounts[0] !== address) {
+      setAddress(accounts[0]);
+    }
+  }
+
+  async function handleConnect() {
+    setMetamaskConnected(!metamaskConnected);
+
+    await window.ethereum.enable();
+
+    if (window.ethereum) {
+      window.ethereum
+        .request({ method: "eth_accounts" })
+        .then(handleAccountsChanged)
+        .catch((err) => {
+          // Some unexpected error.
+          // For backwards compatibility reasons, if no accounts are available,
+          // eth_accounts will return an empty array.
+          console.error(err);
+        });
+    } else {
+      alert("Install metamask extension!!");
+    }
+  }
+
   // @todo handle loading & error within <Balances />
   if (arbitrum.isLoading || ethereum.isLoading || optimism.isLoading || polygon.isLoading) return <h1>Loading...</h1>;
 
@@ -38,9 +70,15 @@ function App() {
   return (
     <Fragment>
       <Title>Layer2Balance</Title>
-      {!isAddressValid && <p>Please enter a valid address</p>}
 
-      <Input value={address} onChange={handleChange} />
+      <InputContainer>
+        <Input value={address} onChange={handleChange} />
+        {!isAddressValid && <InputMessage>Please enter a valid address</InputMessage>}
+      </InputContainer>
+
+      <Button disabled={metamaskConnected} onClick={handleConnect}>
+        Connect Metamask
+      </Button>
 
       <Grid>
         <Balances network={Network.Arbitrum} balance={arbitrum.data.result} />
