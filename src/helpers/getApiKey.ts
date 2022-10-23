@@ -10,7 +10,7 @@ export function getApiKey(network: Network) {
       return env.VITE_ETHEREUM_API_KEY;
     case Network.Optimism:
       return env.VITE_OPTIMISM_API_KEY;
-    case Network.Polygon:
+    case Network.Polygon: // @todo get WETH over Matic
       return env.VITE_POLYGON_API_KEY;
     default:
       return "";
