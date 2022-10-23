@@ -4,3 +4,9 @@ export enum Network {
   Optimism = "optimism",
   Polygon = "polygon",
 }
+
+export type Data = {
+  result: string;
+  status: string;
+  message: string;
+};

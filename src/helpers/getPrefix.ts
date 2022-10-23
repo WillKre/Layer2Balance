@@ -1,4 +1,4 @@
-import { Network } from "../../types";
+import { Network } from "../types";
 
 export function getPrefix(network: Network) {
   switch (network) {

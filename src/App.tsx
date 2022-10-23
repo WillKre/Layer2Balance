@@ -1,21 +1,24 @@
 import { ChangeEvent, Fragment, useEffect, useState } from "react";
+import Web3 from "web3";
+import { Toaster } from "react-hot-toast";
 import { useQuery } from "@tanstack/react-query";
 
-import { Network } from "./types";
+import { en } from "./lang";
+import { Data, Network } from "./types";
+import { Total } from "./components/Total";
+import { Loader } from "./components/Loader";
 import { Balances } from "./components/Balances";
-import { fetchBalance } from "./helpers/fetch-balance/fetch-balance";
-import { Button, Grid, InputContainer, Input, InputMessage, Title } from "./App.styles";
-import Web3 from "web3";
+import { TextInput } from "./components/TextInput";
+import { Grid, Wrapper, Title } from "./App.styles";
+import { fetchBalance } from "./helpers/fetchBalance";
+import { MetamaskConnectButton } from "./components/MetamaskConnectButton";
+import { MessageType, showMessage } from "./helpers/showMessage";
+import { formatValidBalance } from "./helpers/formatValidBalance/formatValidBalance";
 
 function App() {
-  // @todo add ability to connect wallet to get address
   const [address, setAddress] = useState("0x0000000000000000000000000000000000000000");
   const [metamaskConnected, setMetamaskConnected] = useState(false);
   const isAddressValid = Web3.utils.isAddress(address);
-
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    setAddress(e.target.value);
-  }
 
   const arbitrum = useQuery([Network.Arbitrum], fetchBalance(Network.Arbitrum, address));
   const ethereum = useQuery([Network.Ethereum], fetchBalance(Network.Ethereum, address));
@@ -33,12 +36,17 @@ function App() {
 
   window.ethereum.on("accountsChanged", handleAccountsChanged);
 
+  function handleSetAddress(e: ChangeEvent<HTMLInputElement>) {
+    setAddress(e.target.value);
+  }
+
   function handleAccountsChanged(accounts: string[]) {
     if (!accounts.length) {
-      // MetaMask is locked or the user has not connected any accounts
-      console.log("Please connect to MetaMask.");
+      // Metamask is locked or the user has not connected any accounts
+      showMessage(en.message.connectTo, MessageType.Error);
     } else if (accounts[0] !== address) {
       setAddress(accounts[0]);
+      showMessage(en.message.connected, MessageType.Success);
     }
   }
 
@@ -48,44 +56,62 @@ function App() {
     await window.ethereum.enable();
 
     if (window.ethereum) {
-      window.ethereum
-        .request({ method: "eth_accounts" })
-        .then(handleAccountsChanged)
-        .catch((err) => {
-          // Some unexpected error.
-          // For backwards compatibility reasons, if no accounts are available,
-          // eth_accounts will return an empty array.
-          console.error(err);
-        });
+      try {
+        const accounts = await window.ethereum.request({ method: "eth_accounts" });
+        handleAccountsChanged(accounts);
+      } catch (err) {
+        // Some unexpected error. For backwards compatibility reasons, if no accounts are available, eth_accounts will return an empty array.
+        showMessage(en.message.unexpectedError, MessageType.Error);
+      }
     } else {
-      alert("Install metamask extension!!");
+      showMessage(en.message.installMetamask, MessageType.Error);
     }
   }
 
-  // @todo handle loading & error within <Balances />
-  if (arbitrum.isLoading || ethereum.isLoading || optimism.isLoading || polygon.isLoading) return <h1>Loading...</h1>;
-
-  if (arbitrum.isError || ethereum.isError || optimism.isError || polygon.isError) return <h1>Error...</h1>;
+  const isLoading = arbitrum.isLoading || ethereum.isLoading || optimism.isLoading || polygon.isLoading;
 
   return (
     <Fragment>
-      <Title>Layer2Balance</Title>
+      <Title>{en.title}</Title>
 
-      <InputContainer>
-        <Input value={address} onChange={handleChange} />
-        {!isAddressValid && <InputMessage>Please enter a valid address</InputMessage>}
-      </InputContainer>
+      <MetamaskConnectButton connected={metamaskConnected} onClick={handleConnect} />
 
-      <Button disabled={metamaskConnected} onClick={handleConnect}>
-        Connect Metamask
-      </Button>
+      <TextInput
+        value={address}
+        onChange={handleSetAddress}
+        showErrorMessage={isAddressValid}
+        errorMessage={en.errorMessage}
+      />
 
-      <Grid>
-        <Balances network={Network.Arbitrum} balance={arbitrum.data.result} />
-        <Balances network={Network.Ethereum} balance={ethereum.data.result} />
-        <Balances network={Network.Optimism} balance={optimism.data.result} />
-        <Balances network={Network.Polygon} balance={polygon.data.result} />
-      </Grid>
+      <Wrapper>
+        {isLoading ? (
+          <Loader />
+        ) : (
+          <Grid>
+            <Balances
+              network={Network.Arbitrum}
+              isError={arbitrum.isError}
+              balance={formatValidBalance(arbitrum.data)}
+            />
+            <Balances
+              network={Network.Ethereum}
+              isError={ethereum.isError}
+              balance={formatValidBalance(ethereum.data)}
+            />
+            <Balances
+              network={Network.Optimism}
+              isError={optimism.isError}
+              balance={formatValidBalance(optimism.data)}
+            />
+            <Balances network={Network.Polygon} isError={polygon.isError} balance={formatValidBalance(polygon.data)} />
+          </Grid>
+        )}
+
+        <Total
+          values={[arbitrum.data, ethereum.data, optimism.data, polygon.data].filter((s): s is Data => Boolean(s))}
+        />
+      </Wrapper>
+      <Toaster />
     </Fragment>
   );
 }

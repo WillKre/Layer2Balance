@@ -1,4 +1,4 @@
-import { getUrl } from "./get-url";
+import { getUrl } from "./getUrl";
 import { Network } from "../../types";
 
 const DEFAULT_URL = "0x0000000000000000000000000000000000000000";

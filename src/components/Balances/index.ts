@@ -1,1 +1,1 @@
-export { Balances } from "./balances";
+export { Balances } from "./Balances";

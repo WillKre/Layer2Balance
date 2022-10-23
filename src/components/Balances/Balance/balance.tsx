@@ -1,4 +1,4 @@
-import { Container, Unit, Value } from "./balance.styles";
+import { Container, Unit, Value } from "./Balance.styles";
 
 type BalanceProps = {
   unit: string;

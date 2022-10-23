@@ -5,7 +5,7 @@ export const Container = styled.div`
 `;
 
 export const Unit = styled.span`
-  width: 50px;
+  width: 48px;
 `;
 
 export const Value = styled.span`

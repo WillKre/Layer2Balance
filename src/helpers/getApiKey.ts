@@ -1,4 +1,4 @@
-import { Network } from "../../types";
+import { Network } from "../types";
 
 export function getApiKey(network: Network) {
   const env = import.meta.env;
