@@ -6,7 +6,6 @@ export const en = {
   total: "Total",
   address: "Address",
   message: {
-    connected: "Connected!",
     connectTo: "Please connect to Metamask",
     unexpectedError: "Unexpected error occurred",
     installMetamask: "Please install the Metamask extension",

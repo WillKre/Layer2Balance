@@ -46,7 +46,6 @@ function App() {
       showMessage(en.message.connectTo, MessageType.Error);
     } else if (accounts[0] !== address) {
       setAddress(accounts[0]);
-      showMessage(en.message.connected, MessageType.Success);
     }
   }
 
