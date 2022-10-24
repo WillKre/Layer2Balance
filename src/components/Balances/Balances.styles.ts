@@ -34,6 +34,11 @@ export const Column = styled.div`
   }
 `;
 
+export const ErrorMessage = styled.span`
+  color: red;
+  font-size: 16px;
+`;
+
 export const Image = styled.img`
   width: 30px;
   height: 30px;

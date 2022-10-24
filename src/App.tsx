@@ -11,8 +11,8 @@ import { Balances } from "./components/Balances";
 import { TextInput } from "./components/TextInput";
 import { Grid, Wrapper, Title } from "./App.styles";
 import { fetchBalance } from "./helpers/fetchBalance";
-import { MetamaskConnectButton } from "./components/MetamaskConnectButton";
 import { MessageType, showMessage } from "./helpers/showMessage";
+import { MetamaskConnectButton } from "./components/MetamaskConnectButton";
 import { formatValidBalance } from "./helpers/formatValidBalance/formatValidBalance";
 
 function App() {
@@ -34,8 +34,6 @@ function App() {
     }
   }, [address]);
 
-  window.ethereum.on("accountsChanged", handleAccountsChanged);
-
   function handleSetAddress(e: ChangeEvent<HTMLInputElement>) {
     setAddress(e.target.value);
   }
@@ -46,15 +44,15 @@ function App() {
       showMessage(en.message.connectTo, MessageType.Error);
     } else if (accounts[0] !== address) {
       setAddress(accounts[0]);
+      setMetamaskConnected(true);
     }
   }
 
   async function handleConnect() {
-    setMetamaskConnected(!metamaskConnected);
-
-    await window.ethereum.enable();
-
     if (window.ethereum) {
+      await window.ethereum.enable();
+      window.ethereum.on("accountsChanged", handleAccountsChanged);
+
       try {
         const accounts = await window.ethereum.request({ method: "eth_accounts" });
         handleAccountsChanged(accounts);

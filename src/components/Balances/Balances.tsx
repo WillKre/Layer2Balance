@@ -1,9 +1,9 @@
+import { Fragment } from "react";
 import web3 from "web3";
 
-import { Loader } from "../Loader";
 import { Balance } from "./Balance";
 import { Network } from "../../types";
-import { Asset, Container, Column, Image, Name } from "./Balances.styles";
+import { Asset, Container, Column, ErrorMessage, Image, Name } from "./Balances.styles";
 
 type BalancesProps = {
   balance: string;
@@ -19,15 +19,17 @@ export function Balances({ balance, isError, network }: BalancesProps) {
         <Name>{network}</Name>
       </Asset>
 
-      {isError ? (
-        <Loader />
-      ) : (
-        <Column>
-          <Balance unit="Wei" value={balance} />
-          <Balance unit="Gwei" value={web3.utils.fromWei(balance, "gwei")} />
-          <Balance unit="Ether" value={web3.utils.fromWei(balance, "ether")} />
-        </Column>
-      )}
+      <Column>
+        {isError ? (
+          <ErrorMessage>Error fetching data</ErrorMessage>
+        ) : (
+          <Fragment>
+            <Balance unit="Wei" value={balance} />
+            <Balance unit="Gwei" value={web3.utils.fromWei(balance, "gwei")} />
+            <Balance unit="Ether" value={web3.utils.fromWei(balance, "ether")} />
+          </Fragment>
+        )}
+      </Column>
     </Container>
   );
 }

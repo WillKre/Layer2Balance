@@ -34,7 +34,7 @@ export const Title = styled.h1`
   margin-bottom: 60px;
 `;
 
-/* Shared styles */
+/* Shared Styles */
 
 export function getBorderAndBackground() {
   return `
