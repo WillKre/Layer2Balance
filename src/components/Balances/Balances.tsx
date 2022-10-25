@@ -4,6 +4,7 @@ import web3 from "web3";
 import { Balance } from "./Balance";
 import { Network } from "../../types";
 import { Asset, Container, Column, ErrorMessage, Image, Name } from "./Balances.styles";
+import { en } from "../../lang";
 
 type BalancesProps = {
   balance: string;
@@ -21,7 +22,7 @@ export function Balances({ balance, isError, network }: BalancesProps) {
 
       <Column>
         {isError ? (
-          <ErrorMessage>Error fetching data</ErrorMessage>
+          <ErrorMessage>{en.fetchingError}</ErrorMessage>
         ) : (
           <Fragment>
             <Balance unit="Wei" value={balance} />

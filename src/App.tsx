@@ -14,6 +14,7 @@ import { fetchBalance } from "./helpers/fetchBalance";
 import { MessageType, showMessage } from "./helpers/showMessage";
 import { MetamaskConnectButton } from "./components/MetamaskConnectButton";
 import { formatValidBalance } from "./helpers/formatValidBalance/formatValidBalance";
+import { GitHubButton } from "./components/GitHubButton";
 
 function App() {
   const [address, setAddress] = useState("0x0000000000000000000000000000000000000000");
@@ -71,6 +72,8 @@ function App() {
     <Fragment>
       <Title>{en.title}</Title>
 
+      <GitHubButton />
+
       <MetamaskConnectButton connected={metamaskConnected} onClick={handleConnect} />
 
       <TextInput
@@ -100,7 +103,11 @@ function App() {
               isError={optimism.isError}
               balance={formatValidBalance(optimism.data)}
             />
-            <Balances network={Network.Polygon} isError={polygon.isError} balance={formatValidBalance(polygon.data)} />
+            <Balances
+              network={Network.Polygon}
+              isError={polygon.isError}
+              balance={formatValidBalance(polygon.data)} // @todo get WETH
+            />
           </Grid>
         )}
 
