@@ -10,8 +10,7 @@ _Prerequisite: Create a `.env` file within the root directory, copy over the con
 
 This project uses [Netlify Functions](https://www.netlify.com/products/functions/) to handle API keys, so can be run locally using the [Netlify CLI](https://www.netlify.com/products/cli/):
 
-1. **`npm install netlify-cli -g`**
-2. **`netlify dev`**
+**`npx netlify dev`**
 
 ## Preview
 

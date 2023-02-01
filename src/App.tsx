@@ -1,7 +1,7 @@
 import { ChangeEvent, Fragment, useEffect, useState } from "react";
 import Web3 from "web3";
 import { Toaster } from "react-hot-toast";
-import { useQuery } from "@tanstack/react-query";
+import { useQueries } from "@tanstack/react-query";
 
 import { en } from "./lang";
 import { Data, Network } from "./types";
@@ -11,27 +11,29 @@ import { Balances } from "./components/Balances";
 import { TextInput } from "./components/TextInput";
 import { Grid, Wrapper, Title } from "./App.styles";
 import { fetchBalance } from "./helpers/fetchBalance";
+import { GitHubButton } from "./components/GitHubButton";
 import { MessageType, showMessage } from "./helpers/showMessage";
 import { MetamaskConnectButton } from "./components/MetamaskConnectButton";
 import { formatValidBalance } from "./helpers/formatValidBalance/formatValidBalance";
-import { GitHubButton } from "./components/GitHubButton";
+
+const networks = [Network.Arbitrum, Network.Ethereum, Network.Optimism, Network.Polygon];
 
 function App() {
   const [address, setAddress] = useState("0x0000000000000000000000000000000000000000");
   const [metamaskConnected, setMetamaskConnected] = useState(false);
   const isAddressValid = Web3.utils.isAddress(address);
 
-  const arbitrum = useQuery([Network.Arbitrum], fetchBalance(Network.Arbitrum, address));
-  const ethereum = useQuery([Network.Ethereum], fetchBalance(Network.Ethereum, address));
-  const optimism = useQuery([Network.Optimism], fetchBalance(Network.Optimism, address));
-  const polygon = useQuery([Network.Polygon], fetchBalance(Network.Polygon, address));
+  const queries = useQueries({
+    queries: networks.map((network) => ({
+      queryKey: [network],
+      queryFn: fetchBalance(network, address),
+      refetchOnWindowFocus: false,
+    })),
+  });
 
   useEffect(() => {
     if (isAddressValid) {
-      arbitrum.refetch();
-      ethereum.refetch();
-      optimism.refetch();
-      polygon.refetch();
+      queries.forEach(({ refetch }) => refetch());
     }
   }, [address]);
 
@@ -66,7 +68,7 @@ function App() {
     }
   }
 
-  const isLoading = arbitrum.isLoading || ethereum.isLoading || optimism.isLoading || polygon.isLoading;
+  const isLoading = queries.some((query) => query.isLoading || query.isRefetching);
 
   return (
     <Fragment>
@@ -74,13 +76,13 @@ function App() {
 
       <GitHubButton />
 
-      <MetamaskConnectButton connected={metamaskConnected} onClick={handleConnect} />
+      <MetamaskConnectButton onClick={handleConnect} connected={metamaskConnected} />
 
       <TextInput
         value={address}
         onChange={handleSetAddress}
-        showErrorMessage={isAddressValid}
         errorMessage={en.errorMessage}
+        showErrorMessage={isAddressValid}
       />
 
       <Wrapper>
@@ -88,32 +90,13 @@ function App() {
           <Loader />
         ) : (
           <Grid>
-            <Balances
-              network={Network.Arbitrum}
-              isError={arbitrum.isError}
-              balance={formatValidBalance(arbitrum.data)}
-            />
-            <Balances
-              network={Network.Ethereum}
-              isError={ethereum.isError}
-              balance={formatValidBalance(ethereum.data)}
-            />
-            <Balances
-              network={Network.Optimism}
-              isError={optimism.isError}
-              balance={formatValidBalance(optimism.data)}
-            />
-            <Balances
-              network={Network.Polygon}
-              isError={polygon.isError}
-              balance={formatValidBalance(polygon.data)} // @todo get WETH
-            />
+            {queries.map((query, index) => (
+              <Balances network={networks[index]} isError={query.isError} balance={formatValidBalance(query.data)} />
+            ))}
           </Grid>
         )}
 
-        <Total
-          values={[arbitrum.data, ethereum.data, optimism.data, polygon.data].filter((s): s is Data => Boolean(s))}
-        />
+        <Total isLoading={isLoading} values={queries.map(({ data }) => data).filter((s): s is Data => Boolean(s))} />
       </Wrapper>
       <Toaster />
     </Fragment>

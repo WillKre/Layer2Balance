@@ -8,44 +8,39 @@ enum Network {
   Polygon = "polygon",
 }
 
-export function getApiKey(network: Network) {
+export function getConfig(network: Network) {
   switch (network) {
     case Network.Arbitrum:
-      return process.env.VITE_ARBITRUM_API_KEY;
+      return {
+        apiKey: process.env.VITE_ARBITRUM_API_KEY,
+        prefix: "https://api.arbiscan.io/",
+      };
     case Network.Ethereum:
-      return process.env.VITE_ETHEREUM_API_KEY;
+      return {
+        apiKey: process.env.VITE_ETHEREUM_API_KEY,
+        prefix: "https://api.etherscan.io/",
+      };
     case Network.Optimism:
-      return process.env.VITE_OPTIMISM_API_KEY;
-    case Network.Polygon: // @todo get WETH over Matic
-      return process.env.VITE_POLYGON_API_KEY;
-    default:
-      return "";
-  }
-}
-
-function getPrefix(network: Network) {
-  switch (network) {
-    case Network.Arbitrum:
-      return "https://api.arbiscan.io/";
-    case Network.Ethereum:
-      return "https://api.etherscan.io/";
-    case Network.Optimism:
-      return "https://api-optimistic.etherscan.io/";
+      return {
+        apiKey: process.env.VITE_OPTIMISM_API_KEY,
+        prefix: "https://api-optimistic.etherscan.io/",
+      };
     case Network.Polygon:
-      return "https://api.polygonscan.com/";
-    default:
-      return "";
+      return {
+        apiKey: process.env.VITE_POLYGON_API_KEY,
+        prefix: "https://api.polygonscan.com/",
+        action: "tokenbalance&contractaddress=0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+      };
   }
 }
 
 export const handler: Handler = async (event) => {
   try {
     const { network, address } = event.queryStringParameters as { address: string; network: Network };
+    const { apiKey, prefix, action } = getConfig(network);
 
     const { data } = await axios.get(
-      `${getPrefix(network)}api?module=account&action=balance&address=${address}&tag=latest&apikey=${getApiKey(
-        network
-      )}`
+      `${prefix}api?module=account&action=${action || "balance"}&address=${address}&tag=latest&apikey=${apiKey}`
     );
 
     return {
@@ -54,7 +49,7 @@ export const handler: Handler = async (event) => {
     };
   } catch (err) {
     return {
-      statusCode: 404,
+      statusCode: 500,
       body: err.toString(),
     };
   }
